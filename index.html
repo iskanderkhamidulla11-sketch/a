@@ -292,11 +292,6 @@
             margin: 15px 0;
         }
         
-        .rating-stars {
-            font-size: 16px;
-            letter-spacing: 2px;
-        }
-        
         @media (max-width: 480px) {
             .content { padding: 10px; }
             .card { padding: 12px; }
@@ -382,7 +377,7 @@
         </div>
     </div>
 
-    <!-- Модалка пополнения -->
+    <!-- Модалки -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -390,14 +385,13 @@
             <p style="margin: 10px 0; color: var(--text-secondary);">Минимальная сумма: 100 ₽</p>
             <input type="number" id="depositAmount" placeholder="Сумма в рублях" min="100">
             <select id="depositMethod">
-                <option value="stars">⭐ Telegram Stars (1.2 рубля = 1 Star)</option>
-                <option value="crypto">₿ CryptoBot USDT (1 USDT ≈ 90 ₽)</option>
+                <option value="stars">⭐ Telegram Stars</option>
+                <option value="crypto">₿ CryptoBot USDT</option>
             </select>
             <button class="btn" id="confirmDeposit">Пополнить</button>
         </div>
     </div>
 
-    <!-- Модалка вывода -->
     <div id="withdrawModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -407,13 +401,12 @@
                 <option value="card">💳 На банковскую карту</option>
                 <option value="usdt">🪙 USDT (TRC20)</option>
             </select>
-            <input type="number" id="withdrawAmount" placeholder="Сумма к выводу (мин. 100 ₽)">
-            <input type="text" id="withdrawAddress" placeholder="Реквизиты для вывода">
+            <input type="number" id="withdrawAmount" placeholder="Сумма (мин. 100 ₽)">
+            <input type="text" id="withdrawAddress" placeholder="Реквизиты">
             <button class="btn" id="confirmWithdraw">Отправить заявку</button>
         </div>
     </div>
 
-    <!-- Модалка создания сделки с выбором роли -->
     <div id="newDealModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -438,7 +431,6 @@
         </div>
     </div>
 
-    <!-- Модалка деталей сделки -->
     <div id="dealDetailModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -457,7 +449,6 @@
         let userData = null;
         let currentDeals = [];
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
             initTabs();
@@ -471,7 +462,6 @@
             if (tg.colorScheme === 'dark') {
                 document.body.classList.add('dark');
             }
-            
             document.getElementById('themeToggle').addEventListener('click', () => {
                 document.body.classList.toggle('dark');
             });
@@ -485,7 +475,6 @@
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     btn.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
-                    
                     if (tabId === 'profile') loadProfile();
                     if (tabId === 'deals') loadDeals();
                 });
@@ -497,21 +486,15 @@
                 document.querySelector('[data-tab="deals"]').click();
                 document.getElementById('newDealBtn').click();
             });
-            
-            document.getElementById('newDealBtn')?.addEventListener('click', () => {
-                openModal('newDealModal');
-            });
-            
+            document.getElementById('newDealBtn')?.addEventListener('click', () => openModal('newDealModal'));
             document.getElementById('confirmDeal')?.addEventListener('click', createDeal);
             document.getElementById('depositBtn')?.addEventListener('click', () => openModal('depositModal'));
             document.getElementById('confirmDeposit')?.addEventListener('click', deposit);
             document.getElementById('withdrawBtn')?.addEventListener('click', () => openModal('withdrawModal'));
             document.getElementById('confirmWithdraw')?.addEventListener('click', withdraw);
-            
             document.querySelectorAll('.close').forEach(close => {
                 close.addEventListener('click', () => closeModals());
             });
-            
             window.onclick = (event) => {
                 if (event.target.classList.contains('modal')) closeModals();
             };
@@ -522,19 +505,16 @@
             const roleSellerBtn = document.getElementById('roleSellerBtn');
             const dealRoleInput = document.getElementById('dealRole');
             
-            if (roleBuyerBtn && roleSellerBtn) {
-                roleBuyerBtn.addEventListener('click', () => {
-                    dealRoleInput.value = 'buyer';
-                    roleBuyerBtn.classList.add('active');
-                    roleSellerBtn.classList.remove('active');
-                });
-                
-                roleSellerBtn.addEventListener('click', () => {
-                    dealRoleInput.value = 'seller';
-                    roleSellerBtn.classList.add('active');
-                    roleBuyerBtn.classList.remove('active');
-                });
-            }
+            roleBuyerBtn.addEventListener('click', () => {
+                dealRoleInput.value = 'buyer';
+                roleBuyerBtn.classList.add('active');
+                roleSellerBtn.classList.remove('active');
+            });
+            roleSellerBtn.addEventListener('click', () => {
+                dealRoleInput.value = 'seller';
+                roleSellerBtn.classList.add('active');
+                roleBuyerBtn.classList.remove('active');
+            });
         }
         
         function openModal(modalId) {
@@ -564,12 +544,10 @@
                     username: initData.user.username || `user_${initData.user.id}`,
                     fullName: `${initData.user.first_name || ''} ${initData.user.last_name || ''}`.trim() || 'Пользователь'
                 };
-                
                 loadFromLocalStorage();
                 loadProfile();
                 loadDeals();
             } else {
-                // Демо режим для тестирования
                 userData = {
                     id: 123456789,
                     username: 'test_user',
@@ -686,13 +664,11 @@
             const name = document.getElementById('productName').value.trim();
             const price = parseFloat(document.getElementById('dealPrice').value);
             
-            // Проверка на @ в начале
             if (!otherUsername.startsWith('@')) {
                 showToast('Username должен начинаться с @', true);
                 return;
             }
             
-            // Убираем @ для проверки и хранения
             const cleanUsername = otherUsername.substring(1);
             
             if (!cleanUsername || !name || !price) {
@@ -705,24 +681,17 @@
                 return;
             }
             
-            if (price < 10) {
-                showToast('Минимальная сумма сделки 10 ₽', true);
-                return;
-            }
-            
-            // ПРОВЕРКА: нельзя создать сделку с самим собой
             if (cleanUsername.toLowerCase() === userData.username.toLowerCase()) {
                 showToast('❌ Нельзя создать сделку с самим собой!', true);
                 return;
             }
             
-            // Для покупателя проверяем баланс
             if (role === 'buyer' && userData.balance < price) {
                 showToast(`Недостаточно средств! Баланс: ${userData.balance} ₽`, true);
                 return;
             }
             
-            // Отправляем запрос боту
+            // Отправляем боту
             tg.sendData(JSON.stringify({
                 action: 'create_deal',
                 role: role,
@@ -732,7 +701,7 @@
                 price: price
             }));
             
-            // Локально создаём сделку
+            // Локально
             const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
             const newDeal = {
                 id: Date.now(),
@@ -750,18 +719,16 @@
             deals.unshift(newDeal);
             localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
             
-            // Если покупатель - списываем деньги
             if (role === 'buyer') {
                 userData.balance -= price;
                 saveToLocalStorage();
             }
             
             closeModals();
-            showToast('✅ Сделка создана! Контрагенту отправлено приглашение');
+            showToast('✅ Сделка создана! Приглашение отправлено');
             loadProfile();
             loadDeals();
             
-            // Очищаем поля
             document.getElementById('otherUsername').value = '';
             document.getElementById('productName').value = '';
             document.getElementById('dealPrice').value = '';
@@ -776,38 +743,33 @@
                 localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
                 loadDeals();
                 
-                // Отправляем боту
                 tg.sendData(JSON.stringify({
                     action: 'accept_deal',
                     deal_id: dealId
                 }));
                 
-                showToast('✅ Сделка принята! Свяжитесь с покупателем в Telegram и передайте товар');
+                showToast('✅ Сделка принята! Передайте товар покупателю в Telegram');
             }
         }
         
         function completeDeal(dealId) {
-            const deals = JSON.parse(localStorage.getItem(`funpay_deals_userData.id}`) || '[]');
+            const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
             const dealIndex = deals.findIndex(d => d.id === dealId);
             
             if (dealIndex !== -1 && deals[dealIndex].status === 'active') {
-                const deal = deals[dealIndex];
                 deals[dealIndex].status = 'completed';
                 localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
                 
-                // Обновляем рейтинг (случайное улучшение)
-                const newRating = Math.min(5, userData.rating + 0.1);
-                userData.rating = parseFloat(newRating.toFixed(2));
                 userData.totalDeals++;
+                userData.rating = Math.min(5, userData.rating + 0.1);
                 saveToLocalStorage();
                 
-                // Отправляем боту
                 tg.sendData(JSON.stringify({
                     action: 'complete_deal',
                     deal_id: dealId
                 }));
                 
-                showToast('✅ Сделка успешно завершена! Деньги переведены продавцу');
+                showToast('✅ Сделка завершена! Деньги переведены продавцу');
                 loadProfile();
                 loadDeals();
             }
@@ -819,19 +781,15 @@
             
             if (dealIndex !== -1 && (deals[dealIndex].status === 'pending' || deals[dealIndex].status === 'active')) {
                 const deal = deals[dealIndex];
-                const price = deal.price;
                 
-                // Возвращаем деньги если отменяет покупатель (только для pending)
                 if (deal.buyer_id === userData.id && deal.status === 'pending') {
-                    userData.balance += price;
+                    userData.balance += deal.price;
                     saveToLocalStorage();
-                    showToast(`💰 ${price} ₽ возвращены на ваш баланс`);
                 }
                 
                 deals[dealIndex].status = 'cancelled';
                 localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
                 
-                // Отправляем боту
                 tg.sendData(JSON.stringify({
                     action: 'cancel_deal',
                     deal_id: dealId
@@ -847,8 +805,8 @@
             const deal = currentDeals.find(d => d.id === dealId);
             if (deal) {
                 const statusText = {
-                    'pending': '⏳ Ожидает подтверждения продавца',
-                    'active': '🔄 В процессе (продавец передал товар, ожидает подтверждения покупателя)',
+                    'pending': '⏳ Ожидает подтверждения',
+                    'active': '🔄 В процессе',
                     'completed': '✅ Завершена',
                     'cancelled': '❌ Отменена'
                 }[deal.status];
@@ -856,7 +814,6 @@
                 const isBuyer = deal.buyer_id === userData.id;
                 const otherParty = isBuyer ? deal.seller_username : deal.buyer_username;
                 const myRole = isBuyer ? 'Покупатель' : 'Продавец';
-                const otherRole = isBuyer ? 'Продавец' : 'Покупатель';
                 
                 let actionButtons = '';
                 if (deal.status === 'active' && isBuyer) {
@@ -866,50 +823,22 @@
                 }
                 
                 if (deal.status !== 'completed' && deal.status !== 'cancelled') {
-                    actionButtons += `<button class="btn btn-danger" onclick="closeModals(); cancelDeal(${deal.id})">❌ Отменить сделку</button>`;
+                    actionButtons += `<button class="btn btn-danger" onclick="closeModals(); cancelDeal(${deal.id})">❌ Отменить</button>`;
                 }
                 
                 const content = `
                     <div class="profile-info">
-                        <div class="profile-row">
-                            <span class="profile-label">📦 Товар:</span>
-                            <span class="profile-value">${deal.product_name}</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">🎮 Тип:</span>
-                            <span class="profile-value">${deal.product_type}</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">💰 Цена:</span>
-                            <span class="profile-value">${deal.price} ₽</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">👤 ${otherRole}:</span>
-                            <span class="profile-value">@${otherParty}</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">🎭 Ваша роль:</span>
-                            <span class="profile-value">${myRole}</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">📊 Статус:</span>
-                            <span class="profile-value">${statusText}</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">🕐 Создана:</span>
-                            <span class="profile-value">${new Date(deal.created_at).toLocaleString()}</span>
-                        </div>
-                        <hr>
-                        <div class="profile-row">
-                            <span class="profile-label">🔑 ID сделки:</span>
-                            <span class="profile-value">${deal.id}</span>
-                        </div>
+                        <div class="profile-row"><span class="profile-label">📦 Товар:</span><span class="profile-value">${deal.product_name}</span></div>
+                        <div class="profile-row"><span class="profile-label">🎮 Тип:</span><span class="profile-value">${deal.product_type}</span></div>
+                        <div class="profile-row"><span class="profile-label">💰 Цена:</span><span class="profile-value">${deal.price} ₽</span></div>
+                        <div class="profile-row"><span class="profile-label">👤 Контрагент:</span><span class="profile-value">@${otherParty}</span></div>
+                        <div class="profile-row"><span class="profile-label">🎭 Ваша роль:</span><span class="profile-value">${myRole}</span></div>
+                        <div class="profile-row"><span class="profile-label">📊 Статус:</span><span class="profile-value">${statusText}</span></div>
+                        <div class="profile-row"><span class="profile-label">🕐 Создана:</span><span class="profile-value">${new Date(deal.created_at).toLocaleString()}</span></div>
                     </div>
                     ${actionButtons ? `<div style="margin-top: 15px;">${actionButtons}</div>` : ''}
                     <hr>
-                    <p style="font-size: 12px; color: var(--text-secondary); text-align: center;">
-                        💬 Свяжитесь с контрагентом в Telegram для передачи товара
-                    </p>
+                    <p style="font-size: 12px; text-align: center;">💬 Свяжитесь с контрагентом в Telegram</p>
                 `;
                 
                 document.getElementById('dealDetailTitle').innerHTML = `📋 Сделка #${deal.id}`;
@@ -923,23 +852,17 @@
             const method = document.getElementById('depositMethod').value;
             
             if (!amount || amount < 100) {
-                showToast('Минимальная сумма пополнения 100 ₽', true);
-                return;
-            }
-            
-            if (amount > 50000) {
-                showToast('Максимальная сумма пополнения 50 000 ₽', true);
+                showToast('Минимальная сумма 100 ₽', true);
                 return;
             }
             
             closeModals();
-            
             tg.sendData(JSON.stringify({
                 action: method === 'stars' ? 'deposit_stars' : 'deposit_crypto',
                 amount: amount
             }));
             
-            showToast(method === 'stars' ? '⭐ Счёт создан! Оплатите в Telegram' : '₿ Счёт создан! Оплатите через CryptoBot');
+            showToast(method === 'stars' ? '⭐ Счёт создан!' : '₿ Счёт создан!');
             document.getElementById('depositAmount').value = '';
         }
         
@@ -949,65 +872,36 @@
             const address = document.getElementById('withdrawAddress').value.trim();
             
             if (!amount || amount < 100) {
-                showToast('Минимальная сумма вывода 100 ₽', true);
+                showToast('Минимальная сумма 100 ₽', true);
                 return;
             }
             
             if (amount > userData.balance) {
-                showToast(`Недостаточно средств! Баланс: ${userData.balance} ₽`, true);
+                showToast(`Недостаточно средств!`, true);
                 return;
             }
             
             if (!address) {
-                showToast('Введите реквизиты для вывода!', true);
+                showToast('Введите реквизиты!', true);
                 return;
             }
             
-            // Проверка формата карты или USDT адреса
-            if (method === 'card') {
-                const cleanCard = address.replace(/\s/g, '');
-                if (!/^\d{16}$/.test(cleanCard)) {
-                    showToast('Введите корректный номер карты (16 цифр)', true);
-                    return;
-                }
-            } else if (method === 'usdt') {
-                if (!address.startsWith('T') || address.length < 30) {
-                    showToast('Введите корректный TRC-20 адрес (начинается с T)', true);
-                    return;
-                }
-            }
+            tg.sendData(JSON.stringify({
+                action: 'withdraw',
+                amount: amount,
+                method: method,
+                address: address
+            }));
             
-            const commission = amount * 0.05;
-            const finalAmount = amount - commission;
+            userData.balance -= amount;
+            saveToLocalStorage();
             
-            tg.showPopup({
-                title: 'Подтверждение вывода',
-                message: `Сумма: ${amount} ₽\nКомиссия 5%: ${commission.toFixed(2)} ₽\nК получению: ${finalAmount.toFixed(2)} ₽\n\nПродолжить?`,
-                buttons: [
-                    {id: 'ok', type: 'ok', text: '✅ Да'},
-                    {id: 'cancel', type: 'cancel', text: '❌ Нет'}
-                ]
-            }, (buttonId) => {
-                if (buttonId === 'ok') {
-                    tg.sendData(JSON.stringify({
-                        action: 'withdraw',
-                        amount: amount,
-                        method: method,
-                        address: address
-                    }));
-                    
-                    // Локально списываем
-                    userData.balance -= amount;
-                    saveToLocalStorage();
-                    
-                    closeModals();
-                    showToast('✅ Заявка на вывод отправлена!');
-                    loadProfile();
-                    
-                    document.getElementById('withdrawAmount').value = '';
-                    document.getElementById('withdrawAddress').value = '';
-                }
-            });
+            closeModals();
+            showToast('✅ Заявка отправлена!');
+            loadProfile();
+            
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawAddress').value = '';
         }
         
         function loadStats() {
@@ -1015,18 +909,12 @@
             document.getElementById('statsDeals').innerText = '0';
         }
         
-        // Глобальные функции для onclick
         window.viewDealDetail = viewDealDetail;
         window.completeDeal = completeDeal;
         window.acceptDeal = acceptDeal;
         window.cancelDeal = cancelDeal;
         
-        // Обработка ответов от бота
-        tg.onEvent('viewportChanged', () => {
-            tg.expand();
-        });
-        
-        console.log('✅ FunPay Mini App загружен');
+        tg.onEvent('viewportChanged', () => tg.expand());
     </script>
 </body>
 </html>
