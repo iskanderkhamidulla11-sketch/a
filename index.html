@@ -5,7 +5,792 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>FunPay - Торговая площадка</title>
     <style>
+        * {<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>FunPay - Торговая площадка</title>
+    <style>
         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s;
+            padding-bottom: 70px;
+        }
+        
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border: #ddd;
+            --btn-bg: #1f6aa5;
+            --btn-hover: #18527f;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        body.dark {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #fff;
+            --text-secondary: #aaa;
+            --border: #444;
+        }
+        
+        .header {
+            background: var(--bg-secondary);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+        }
+        
+        .theme-toggle {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: var(--btn-bg);
+            border-bottom: 2px solid var(--btn-bg);
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: var(--btn-bg);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .profile-info p {
+            margin: 10px 0;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .balance-actions .btn {
+            flex: 1;
+            margin-top: 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .deal-item {
+            background: var(--bg-primary);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid var(--btn-bg);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .deal-item:active {
+            transform: scale(0.99);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--btn-bg);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+            animation: fadeInOut 2s ease;
+            white-space: nowrap;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; bottom: 0; }
+            10%, 90% { opacity: 1; bottom: 20px; }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .badge-success {
+            background: #1f6aa5;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .badge-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        @media (max-width: 480px) {
+            .content {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 FunPay</h1>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+        <button class="tab-btn" data-tab="profile">👤 Профиль</button>
+        <button class="tab-btn" data-tab="deals">📋 Сделки</button>
+    </div>
+
+    <div class="content">
+        <div id="home" class="tab-content active">
+            <div class="card">
+                <h2>🤝 Добро пожаловать в FunPay!</h2>
+                <p style="margin-top: 10px;">Безопасные сделки с гарантом между пользователями Telegram.</p>
+                <ul style="margin-top: 15px; margin-left: 20px;">
+                    <li>✅ Гарант сделки</li>
+                    <li>✅ Быстрое пополнение</li>
+                    <li>✅ Рейтинг и отзывы</li>
+                    <li>✅ Вывод на карту/USDT</li>
+                </ul>
+                <button class="btn" id="startBtn">🚀 Начать сделку</button>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Статистика</h3>
+                <p style="margin-top: 10px;">Активных пользователей: <span id="statsUsers">...</span></p>
+                <p>Завершенных сделок: <span id="statsDeals">...</span></p>
+            </div>
+        </div>
+
+        <div id="profile" class="tab-content">
+            <div class="card">
+                <h3>👤 Личная информация</h3>
+                <div class="profile-info">
+                    <p><strong>Имя:</strong> <span id="fullName">-</span></p>
+                    <p><strong>Username:</strong> <span id="username">-</span></p>
+                    <p><strong>⭐ Рейтинг:</strong> <span id="rating">0</span> / 5</p>
+                    <p><strong>📊 Сделок:</strong> <span id="totalDeals">0</span></p>
+                    <p><strong>💰 Баланс:</strong> <span id="balance">0</span> ₽</p>
+                </div>
+                
+                <div class="balance-actions">
+                    <button class="btn" id="depositBtn">💎 Пополнить</button>
+                    <button class="btn" id="withdrawBtn">💸 Вывести</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📝 Последние отзывы</h3>
+                <div id="reviewsList">Нет отзывов</div>
+            </div>
+        </div>
+
+        <div id="deals" class="tab-content">
+            <button class="btn" id="newDealBtn">+ Создать сделку</button>
+            <div id="dealsList">Загрузка...</div>
+        </div>
+    </div>
+
+    <!-- Модалки -->
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>💎 Пополнение баланса</h3>
+            <p style="margin: 10px 0; color: var(--text-secondary);">Минимальная сумма: 100 ₽</p>
+            <input type="number" id="depositAmount" placeholder="Сумма в рублях" min="100">
+            <button class="btn" id="confirmDeposit">Оплатить через CryptoBot</button>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>💸 Вывод средств</h3>
+            <p style="margin: 10px 0; color: var(--warning);">⚠️ Комиссия: 5%</p>
+            <select id="withdrawMethod">
+                <option value="card">💳 На банковскую карту</option>
+                <option value="usdt">🪙 USDT (TRC20)</option>
+            </select>
+            <input type="number" id="withdrawAmount" placeholder="Сумма к выводу">
+            <input type="text" id="withdrawAddress" placeholder="Реквизиты для вывода">
+            <button class="btn" id="confirmWithdraw">Отправить заявку</button>
+        </div>
+    </div>
+
+    <div id="newDealModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>➕ Новая сделка</h3>
+            <select id="dealRole">
+                <option value="buyer">🛒 Я покупатель</option>
+                <option value="seller">🏷️ Я продавец</option>
+            </select>
+            <input type="text" id="counterpartyUsername" placeholder="Username второй стороны (без @)">
+            <select id="productType">
+                <option value="game">🎮 Игровой аккаунт</option>
+                <option value="currency">💰 Игровая валюта</option>
+                <option value="item">📦 Игровой предмет</option>
+                <option value="service">🛠️ Услуга</option>
+            </select>
+            <input type="text" id="productName" placeholder="Название товара">
+            <input type="number" id="dealPrice" placeholder="Цена в рублях">
+            <button class="btn" id="confirmDeal">Создать сделку</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        let userData = null;
+        let currentDeals = [];
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initTabs();
+            initButtons();
+            loadUserData();
+            loadStats();
+        });
+        
+        function initTheme() {
+            if (tg.colorScheme === 'dark') {
+                document.body.classList.add('dark');
+            }
+            
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+            });
+        }
+        
+        function initTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    if (tabId === 'profile') loadProfile();
+                    if (tabId === 'deals') loadDeals();
+                });
+            });
+        }
+        
+        function initButtons() {
+            document.getElementById('startBtn')?.addEventListener('click', () => {
+                document.querySelector('[data-tab="deals"]').click();
+            });
+            
+            document.getElementById('newDealBtn')?.addEventListener('click', () => {
+                openModal('newDealModal');
+            });
+            
+            document.getElementById('confirmDeal')?.addEventListener('click', createDeal);
+            document.getElementById('depositBtn')?.addEventListener('click', () => openModal('depositModal'));
+            document.getElementById('confirmDeposit')?.addEventListener('click', deposit);
+            document.getElementById('withdrawBtn')?.addEventListener('click', () => openModal('withdrawModal'));
+            document.getElementById('confirmWithdraw')?.addEventListener('click', withdraw);
+            
+            document.querySelectorAll('.close').forEach(close => {
+                close.addEventListener('click', () => closeModals());
+            });
+            
+            window.onclick = (event) => {
+                if (event.target.classList.contains('modal')) closeModals();
+            };
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+        
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#e74c3c' : '#1f6aa5';
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+        
+        function loadUserData() {
+            const initData = tg.initDataUnsafe;
+            
+            if (initData && initData.user) {
+                userData = {
+                    id: initData.user.id,
+                    username: initData.user.username || `user_${initData.user.id}`,
+                    fullName: `${initData.user.first_name || ''} ${initData.user.last_name || ''}`.trim() || 'Пользователь'
+                };
+                
+                // Загружаем данные из localStorage (временное хранилище)
+                loadFromLocalStorage();
+                loadProfile();
+                loadDeals();
+            } else {
+                // Демо режим для тестирования в браузере
+                userData = {
+                    id: 123456789,
+                    username: 'test_user',
+                    fullName: 'Тестовый Пользователь'
+                };
+                loadFromLocalStorage();
+                loadProfile();
+                loadDeals();
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem(`funpay_user_${userData.id}`);
+            if (saved) {
+                userData = { ...userData, ...JSON.parse(saved) };
+            } else {
+                userData.balance = 1000; // Стартовый баланс для теста
+                userData.rating = 0;
+                userData.totalDeals = 0;
+                userData.reviews = [];
+                saveToLocalStorage();
+            }
+        }
+        
+        function saveToLocalStorage() {
+            localStorage.setItem(`funpay_user_${userData.id}`, JSON.stringify(userData));
+        }
+        
+        function loadProfile() {
+            document.getElementById('fullName').innerText = userData.fullName;
+            document.getElementById('username').innerText = '@' + userData.username;
+            document.getElementById('rating').innerText = userData.rating.toFixed(1);
+            document.getElementById('totalDeals').innerText = userData.totalDeals;
+            document.getElementById('balance').innerText = userData.balance;
+            
+            if (userData.reviews && userData.reviews.length > 0) {
+                let html = '';
+                userData.reviews.slice(-3).forEach(r => {
+                    html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+                                ⭐ ${r.stars}/5 - ${r.text}<br>
+                                <small>${new Date(r.date).toLocaleDateString()}</small>
+                             </div>`;
+                });
+                document.getElementById('reviewsList').innerHTML = html;
+            } else {
+                document.getElementById('reviewsList').innerHTML = '<p style="color: var(--text-secondary);">Нет отзывов</p>';
+            }
+        }
+        
+        function loadDeals() {
+            const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
+            currentDeals = deals;
+            
+            if (deals.length === 0) {
+                document.getElementById('dealsList').innerHTML = '<div class="card">📭 У вас пока нет сделок</div>';
+                return;
+            }
+            
+            let html = '';
+            deals.forEach(deal => {
+                const statusClass = {
+                    'pending': 'badge-warning',
+                    'active': 'badge-success',
+                    'completed': 'badge-success',
+                    'cancelled': 'badge-danger'
+                }[deal.status] || 'badge-warning';
+                
+                const statusText = {
+                    'pending': 'Ожидает',
+                    'active': 'В процессе',
+                    'completed': '✓ Завершена',
+                    'cancelled': '✗ Отменена'
+                }[deal.status];
+                
+                html += `
+                    <div class="deal-item" onclick="viewDeal(${deal.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong>${deal.product_name}</strong>
+                            <span class="badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 14px; color: var(--text-secondary);">
+                            📦 ${deal.product_type} | 💰 ${deal.price} ₽
+                        </div>
+                        <div style="margin-top: 5px; font-size: 12px; color: var(--text-secondary);">
+                            🕐 ${new Date(deal.created_at).toLocaleDateString()}
+                        </div>
+                        ${deal.status === 'active' ? `<button class="btn" style="margin-top: 10px;" onclick="event.stopPropagation(); completeDeal(${deal.id})">✅ Подтвердить получение</button>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('dealsList').innerHTML = html;
+        }
+        
+        function createDeal() {
+            const role = document.getElementById('dealRole').value;
+            const otherUsername = document.getElementById('counterpartyUsername').value.trim();
+            const type = document.getElementById('productType').value;
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('dealPrice').value);
+            
+            if (!otherUsername || !name || !price) {
+                showToast('Заполните все поля!', true);
+                return;
+            }
+            
+            if (price <= 0) {
+                showToast('Цена должна быть больше 0!', true);
+                return;
+            }
+            
+            if (userData.balance < price) {
+                showToast('Недостаточно средств на балансе!', true);
+                return;
+            }
+            
+            // Создаем сделку
+            const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
+            const newDeal = {
+                id: Date.now(),
+                seller_username: role === 'buyer' ? otherUsername : userData.username,
+                product_type: type,
+                product_name: name,
+                price: price,
+                status: 'pending',
+                created_at: new Date().toISOString(),
+                buyer_id: userData.id
+            };
+            
+            deals.unshift(newDeal);
+            localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
+            
+            // Блокируем средства
+            userData.balance -= price;
+            saveToLocalStorage();
+            
+            closeModals();
+            showToast('✅ Сделка создана! Ожидайте подтверждения');
+            loadProfile();
+            loadDeals();
+            
+            // Очищаем поля
+            document.getElementById('counterpartyUsername').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('dealPrice').value = '';
+            
+            // Отправляем данные на backend бота
+            tg.sendData(JSON.stringify({
+                action: 'create_deal',
+                role: role,
+                other_username: otherUsername,
+                product_name: name,
+                product_type: type,
+                product_description: '',
+                price: price
+            }));
+        }
+        
+        function completeDeal(dealId) {
+            const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
+            const dealIndex = deals.findIndex(d => d.id === dealId);
+            
+            if (dealIndex !== -1 && deals[dealIndex].status === 'active') {
+                deals[dealIndex].status = 'completed';
+                localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
+                
+                userData.totalDeals++;
+                saveToLocalStorage();
+                
+                showToast('✅ Сделка успешно завершена!');
+                loadProfile();
+                loadDeals();
+                
+                tg.sendData(JSON.stringify({
+                    type: 'deal_completed',
+                    deal_id: dealId
+                }));
+            }
+        }
+        
+        function viewDeal(dealId) {
+            const deal = currentDeals.find(d => d.id === dealId);
+            if (deal) {
+                const statusText = {
+                    'pending': 'Ожидает подтверждения продавца',
+                    'active': 'В процессе выполнения',
+                    'completed': 'Завершена',
+                    'cancelled': 'Отменена'
+                }[deal.status];
+                
+                tg.showPopup({
+                    title: '📋 Детали сделки',
+                    message: `Товар: ${deal.product_name}\nТип: ${deal.product_type}\nЦена: ${deal.price} ₽\nПродавец: @${deal.seller_username}\nСтатус: ${statusText}\nСоздана: ${new Date(deal.created_at).toLocaleString()}`,
+                    buttons: [{type: 'ok'}]
+                });
+            }
+        }
+        
+        function deposit() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            
+            if (!amount || amount < 100) {
+                showToast('Минимальная сумма пополнения 100 ₽', true);
+                return;
+            }
+            
+            // Отправляем запрос на создание инвойса
+            tg.sendData(JSON.stringify({
+                type: 'deposit',
+                amount: amount,
+                user_id: userData.id
+            }));
+            
+            closeModals();
+            showToast('💳 Счет создан! Оплатите в течение 30 минут');
+            document.getElementById('depositAmount').value = '';
+        }
+        
+        function withdraw() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('withdrawMethod').value;
+            const address = document.getElementById('withdrawAddress').value.trim();
+            
+            if (!amount || amount < 100) {
+                showToast('Минимальная сумма вывода 100 ₽', true);
+                return;
+            }
+            
+            if (!address) {
+                showToast('Введите реквизиты для вывода!', true);
+                return;
+            }
+            
+            if (userData.balance < amount) {
+                showToast('Недостаточно средств!', true);
+                return;
+            }
+            
+            const fee = amount * 0.05;
+            const finalAmount = amount - fee;
+            
+            tg.showPopup({
+                title: 'Подтверждение вывода',
+                message: `Сумма: ${amount} ₽\nКомиссия (5%): ${fee.toFixed(2)} ₽\nК получению: ${finalAmount.toFixed(2)} ₽\n\nПродолжить?`,
+                buttons: [
+                    {type: 'ok', text: '✅ Да'},
+                    {type: 'cancel', text: '❌ Нет'}
+                ]
+            }, (buttonId) => {
+                if (buttonId === 'ok') {
+                    // Блокируем средства
+                    userData.balance -= amount;
+                    saveToLocalStorage();
+                    
+                    // Отправляем заявку админу
+                    tg.sendData(JSON.stringify({
+                        type: 'withdraw',
+                        amount: amount,
+                        method: method,
+                        address: address,
+                        user_id: userData.id,
+                        username: userData.username
+                    }));
+                    
+                    closeModals();
+                    showToast('✅ Заявка на вывод отправлена! Ожидайте обработки');
+                    loadProfile();
+                    
+                    // Очищаем поля
+                    document.getElementById('withdrawAmount').value = '';
+                    document.getElementById('withdrawAddress').value = '';
+                }
+            });
+        }
+        
+        function loadStats() {
+            // Загружаем статистику из localStorage
+            const allUsers = JSON.parse(localStorage.getItem('funpay_all_users') || '[]');
+            const allDeals = JSON.parse(localStorage.getItem('funpay_all_deals') || '[]');
+            
+            document.getElementById('statsUsers').innerText = allUsers.length || '1';
+            document.getElementById('statsDeals').innerText = allDeals.length || '0';
+        }
+        
+        // Экспорт глобальных функций
+        window.viewDeal = viewDeal;
+        window.completeDeal = completeDeal;
+        
+        // Обработка ответов от бота
+        tg.onEvent('viewportChanged', () => {
+            tg.expand();
+        });
+    </script>
+</body>
+</html>
             margin: 0;<!DOCTYPE html>
 <html lang="ru">
 <head>
