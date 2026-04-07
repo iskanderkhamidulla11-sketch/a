@@ -193,7 +193,7 @@
             color: var(--text-secondary);
         }
         
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -267,6 +267,48 @@
             color: white;
         }
         
+        .rating-stars {
+            display: inline-flex;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .star {
+            font-size: 24px;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+        
+        .star.active {
+            color: #f39c12;
+        }
+        
+        .search-box {
+            margin-bottom: 15px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .filter-btn.active {
+            background: var(--btn-bg);
+            color: white;
+            border-color: var(--btn-bg);
+        }
+        
         @media (max-width: 480px) {
             .content {
                 padding: 10px;
@@ -287,6 +329,7 @@
 
     <div class="tabs">
         <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+        <button class="tab-btn" data-tab="market">🛒 Маркет</button>
         <button class="tab-btn" data-tab="profile">👤 Профиль</button>
         <button class="tab-btn" data-tab="deals">📋 Сделки</button>
     </div>
@@ -309,6 +352,29 @@
                 <h3>📊 Статистика</h3>
                 <p style="margin-top: 10px;">Активных пользователей: <span id="statsUsers">...</span></p>
                 <p>Завершенных сделок: <span id="statsDeals">...</span></p>
+                <p>💰 В обороте: <span id="statsVolume">...</span> ₽</p>
+            </div>
+            
+            <div class="card">
+                <h3>🎁 Секретный промокод</h3>
+                <p style="margin-top: 10px;">Напишите боту слово <strong>"нищий"</strong> и получите 1000₽ на баланс!</p>
+                <button class="btn" id="promoBtn">💬 Написать боту</button>
+            </div>
+        </div>
+
+        <div id="market" class="tab-content">
+            <div class="card">
+                <div class="search-box">
+                    <input type="text" id="searchProduct" placeholder="🔍 Поиск товаров...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">Все</button>
+                    <button class="filter-btn" data-filter="game">🎮 Аккаунты</button>
+                    <button class="filter-btn" data-filter="currency">💰 Валюта</button>
+                    <button class="filter-btn" data-filter="item">📦 Предметы</button>
+                    <button class="filter-btn" data-filter="service">🛠️ Услуги</button>
+                </div>
+                <div id="marketProducts">Загрузка...</div>
             </div>
         </div>
 
@@ -330,13 +396,33 @@
             </div>
 
             <div class="card">
-                <h3>📝 Последние отзывы</h3>
+                <h3>⭐ Оставить отзыв о пользователе</h3>
+                <input type="text" id="reviewUsername" placeholder="Username пользователя (без @)">
+                <div class="rating-stars" id="ratingStars">
+                    <span class="star" data-value="1">☆</span>
+                    <span class="star" data-value="2">☆</span>
+                    <span class="star" data-value="3">☆</span>
+                    <span class="star" data-value="4">☆</span>
+                    <span class="star" data-value="5">☆</span>
+                </div>
+                <textarea id="reviewText" rows="3" placeholder="Текст отзыва..."></textarea>
+                <button class="btn" id="submitReviewBtn">📝 Отправить отзыв</button>
+            </div>
+
+            <div class="card">
+                <h3>📝 Мои отзывы</h3>
                 <div id="reviewsList">Нет отзывов</div>
             </div>
         </div>
 
         <div id="deals" class="tab-content">
             <button class="btn" id="newDealBtn">+ Создать сделку</button>
+            <div class="filter-buttons" style="margin-top: 15px;">
+                <button class="filter-btn active" data-deal-filter="all">Все</button>
+                <button class="filter-btn" data-deal-filter="pending">⏳ Ожидают</button>
+                <button class="filter-btn" data-deal-filter="active">🔄 В процессе</button>
+                <button class="filter-btn" data-deal-filter="completed">✅ Завершены</button>
+            </div>
             <div id="dealsList">Загрузка...</div>
         </div>
     </div>
@@ -348,7 +434,8 @@
             <h3>💎 Пополнение баланса</h3>
             <p style="margin: 10px 0; color: var(--text-secondary);">Минимальная сумма: 100 ₽</p>
             <input type="number" id="depositAmount" placeholder="Сумма в рублях" min="100">
-            <button class="btn" id="confirmDeposit">Оплатить через CryptoBot</button>
+            <button class="btn" id="confirmDepositCrypto">₿ Оплатить USDT (CryptoBot)</button>
+            <button class="btn" id="confirmDepositStars" style="background: #f39c12;">⭐ Оплатить Stars</button>
         </div>
     </div>
 
@@ -360,6 +447,7 @@
             <select id="withdrawMethod">
                 <option value="card">💳 На банковскую карту</option>
                 <option value="usdt">🪙 USDT (TRC20)</option>
+                <option value="sbp">🏦 СБП</option>
             </select>
             <input type="number" id="withdrawAmount" placeholder="Сумма к выводу">
             <input type="text" id="withdrawAddress" placeholder="Реквизиты для вывода">
@@ -379,8 +467,18 @@
                 <option value="service">🛠️ Услуга</option>
             </select>
             <input type="text" id="productName" placeholder="Название товара">
+            <textarea id="productDescription" rows="3" placeholder="Описание товара..."></textarea>
             <input type="number" id="dealPrice" placeholder="Цена в рублях">
             <button class="btn" id="confirmDeal">Создать сделку</button>
+        </div>
+    </div>
+
+    <div id="dealModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="dealModalTitle">📋 Детали сделки</h3>
+            <div id="dealModalContent"></div>
+            <div id="dealModalActions"></div>
         </div>
     </div>
 
@@ -393,6 +491,8 @@
         
         let userData = null;
         let currentDeals = [];
+        let currentMarketProducts = [];
+        let selectedRating = 0;
         
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
@@ -401,6 +501,8 @@
             initButtons();
             loadUserData();
             loadStats();
+            loadMarketProducts();
+            initRatingStars();
         });
         
         function initTheme() {
@@ -424,6 +526,44 @@
                     
                     if (tabId === 'profile') loadProfile();
                     if (tabId === 'deals') loadDeals();
+                    if (tabId === 'market') loadMarketProducts();
+                });
+            });
+            
+            // Фильтры для маркета
+            document.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterMarketProducts(btn.dataset.filter);
+                });
+            });
+            
+            // Фильтры для сделок
+            document.querySelectorAll('[data-deal-filter]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-deal-filter]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterDeals(btn.dataset.dealFilter);
+                });
+            });
+        }
+        
+        function initRatingStars() {
+            const stars = document.querySelectorAll('#ratingStars .star');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.dataset.value);
+                    selectedRating = value;
+                    stars.forEach((s, index) => {
+                        if (index < value) {
+                            s.textContent = '★';
+                            s.classList.add('active');
+                        } else {
+                            s.textContent = '☆';
+                            s.classList.remove('active');
+                        }
+                    });
                 });
             });
         }
@@ -433,15 +573,21 @@
                 document.querySelector('[data-tab="deals"]').click();
             });
             
+            document.getElementById('promoBtn')?.addEventListener('click', () => {
+                tg.openTelegramLink('https://t.me/FunPayBot');
+            });
+            
             document.getElementById('newDealBtn')?.addEventListener('click', () => {
                 openModal('newDealModal');
             });
             
             document.getElementById('confirmDeal')?.addEventListener('click', createDeal);
             document.getElementById('depositBtn')?.addEventListener('click', () => openModal('depositModal'));
-            document.getElementById('confirmDeposit')?.addEventListener('click', deposit);
+            document.getElementById('confirmDepositCrypto')?.addEventListener('click', () => deposit('crypto'));
+            document.getElementById('confirmDepositStars')?.addEventListener('click', () => deposit('stars'));
             document.getElementById('withdrawBtn')?.addEventListener('click', () => openModal('withdrawModal'));
             document.getElementById('confirmWithdraw')?.addEventListener('click', withdraw);
+            document.getElementById('submitReviewBtn')?.addEventListener('click', submitReview);
             
             document.querySelectorAll('.close').forEach(close => {
                 close.addEventListener('click', () => closeModals());
@@ -484,7 +630,6 @@
                 loadProfile();
                 loadDeals();
             } else {
-                // Демо режим для тестирования в браузере
                 userData = {
                     id: 123456789,
                     username: 'test_user',
@@ -505,6 +650,7 @@
                 userData.rating = 0;
                 userData.totalDeals = 0;
                 userData.reviews = [];
+                userData.myReviews = [];
                 saveToLocalStorage();
             }
         }
@@ -520,12 +666,13 @@
             document.getElementById('totalDeals').innerText = userData.totalDeals;
             document.getElementById('balance').innerText = userData.balance;
             
-            if (userData.reviews && userData.reviews.length > 0) {
+            if (userData.myReviews && userData.myReviews.length > 0) {
                 let html = '';
-                userData.reviews.slice(-3).forEach(r => {
+                userData.myReviews.slice(-5).reverse().forEach(r => {
                     html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--border);">
-                                ⭐ ${r.stars}/5 - ${r.text}<br>
-                                <small>${new Date(r.date).toLocaleDateString()}</small>
+                                <div>⭐ ${r.stars}/5 - от @${r.from_user}</div>
+                                <div style="font-size: 14px; margin-top: 5px;">${r.text}</div>
+                                <small style="color: var(--text-secondary);">${new Date(r.date).toLocaleDateString()}</small>
                              </div>`;
                 });
                 document.getElementById('reviewsList').innerHTML = html;
@@ -537,14 +684,22 @@
         function loadDeals() {
             const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
             currentDeals = deals;
+            filterDeals('all');
+        }
+        
+        function filterDeals(status) {
+            let filtered = currentDeals;
+            if (status !== 'all') {
+                filtered = currentDeals.filter(d => d.status === status);
+            }
             
-            if (deals.length === 0) {
+            if (filtered.length === 0) {
                 document.getElementById('dealsList').innerHTML = '<div class="card">📭 У вас пока нет сделок</div>';
                 return;
             }
             
             let html = '';
-            deals.forEach(deal => {
+            filtered.forEach(deal => {
                 const statusClass = {
                     'pending': 'badge-warning',
                     'active': 'badge-success',
@@ -553,25 +708,27 @@
                 }[deal.status] || 'badge-warning';
                 
                 const statusText = {
-                    'pending': 'Ожидает',
-                    'active': 'В процессе',
-                    'completed': '✓ Завершена',
-                    'cancelled': '✗ Отменена'
+                    'pending': '⏳ Ожидает',
+                    'active': '🔄 В процессе',
+                    'completed': '✅ Завершена',
+                    'cancelled': '❌ Отменена'
                 }[deal.status];
                 
                 html += `
-                    <div class="deal-item" onclick="viewDeal(${deal.id})">
+                    <div class="deal-item" onclick="viewDealDetails(${deal.id})">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <strong>${deal.product_name}</strong>
                             <span class="badge ${statusClass}">${statusText}</span>
                         </div>
                         <div style="margin-top: 8px; font-size: 14px; color: var(--text-secondary);">
-                            📦 ${deal.product_type} | 💰 ${deal.price} ₽
+                            📦 ${deal.product_type} | 💰 ${deal.price} ₽ | ${deal.role === 'buyer' ? '👤 Покупатель' : '🛒 Продавец'}
                         </div>
                         <div style="margin-top: 5px; font-size: 12px; color: var(--text-secondary);">
                             🕐 ${new Date(deal.created_at).toLocaleDateString()}
                         </div>
-                        ${deal.status === 'active' ? `<button class="btn" style="margin-top: 10px;" onclick="event.stopPropagation(); completeDeal(${deal.id})">✅ Подтвердить получение</button>` : ''}
+                        ${deal.status === 'active' && deal.role === 'buyer' ? `<button class="btn" style="margin-top: 10px;" onclick="event.stopPropagation(); confirmDealCompletion(${deal.id})">✅ Подтвердить получение</button>` : ''}
+                        ${deal.status === 'active' && deal.role === 'seller' ? `<button class="btn btn-warning" style="margin-top: 10px;" onclick="event.stopPropagation(); cancelDeal(${deal.id})">❌ Отменить сделку</button>` : ''}
+                        ${deal.status === 'pending' && deal.role === 'seller' ? `<button class="btn" style="margin-top: 10px;" onclick="event.stopPropagation(); acceptDeal(${deal.id})">✅ Принять сделку</button>` : ''}
                     </div>
                 `;
             });
@@ -582,6 +739,7 @@
             const seller = document.getElementById('sellerUsername').value.trim();
             const type = document.getElementById('productType').value;
             const name = document.getElementById('productName').value.trim();
+            const description = document.getElementById('productDescription').value.trim();
             const price = parseFloat(document.getElementById('dealPrice').value);
             
             if (!seller || !name || !price) {
@@ -599,13 +757,13 @@
                 return;
             }
             
-            // Отправляем данные в бот
             tg.sendData(JSON.stringify({
                 action: 'create_deal',
                 role: 'buyer',
                 other_username: seller,
                 product_name: name,
                 product_type: type,
+                product_description: description,
                 price: price
             }));
             
@@ -614,50 +772,96 @@
             
             document.getElementById('sellerUsername').value = '';
             document.getElementById('productName').value = '';
+            document.getElementById('productDescription').value = '';
             document.getElementById('dealPrice').value = '';
         }
         
-        function completeDeal(dealId) {
-            const deals = JSON.parse(localStorage.getItem(`funpay_deals_${userData.id}`) || '[]');
-            const dealIndex = deals.findIndex(d => d.id === dealId);
-            
-            if (dealIndex !== -1 && deals[dealIndex].status === 'active') {
-                deals[dealIndex].status = 'completed';
-                localStorage.setItem(`funpay_deals_${userData.id}`, JSON.stringify(deals));
-                
-                userData.totalDeals++;
-                saveToLocalStorage();
-                
-                showToast('✅ Сделка успешно завершена!');
-                loadProfile();
-                loadDeals();
-                
-                tg.sendData(JSON.stringify({
-                    type: 'deal_completed',
-                    deal_id: dealId
-                }));
-            }
+        function acceptDeal(dealId) {
+            tg.sendData(JSON.stringify({
+                action: 'accept_deal',
+                deal_id: dealId
+            }));
+            showToast('⏳ Отправляю подтверждение...');
         }
         
-        function viewDeal(dealId) {
+        function confirmDealCompletion(dealId) {
+            tg.showPopup({
+                title: 'Подтверждение',
+                message: 'Вы подтверждаете получение товара? Деньги будут переведены продавцу.',
+                buttons: [
+                    {type: 'ok', text: '✅ Да, всё получил'},
+                    {type: 'cancel', text: '❌ Нет'}
+                ]
+            }, (buttonId) => {
+                if (buttonId === 'ok') {
+                    tg.sendData(JSON.stringify({
+                        action: 'complete_deal',
+                        deal_id: dealId
+                    }));
+                    showToast('⏳ Завершаю сделку...');
+                }
+            });
+        }
+        
+        function cancelDeal(dealId) {
+            tg.showPopup({
+                title: 'Отмена сделки',
+                message: 'Вы уверены, что хотите отменить сделку?',
+                buttons: [
+                    {type: 'ok', text: '✅ Да, отменить'},
+                    {type: 'cancel', text: '❌ Нет'}
+                ]
+            }, (buttonId) => {
+                if (buttonId === 'ok') {
+                    tg.sendData(JSON.stringify({
+                        action: 'cancel_deal',
+                        deal_id: dealId
+                    }));
+                    showToast('⏳ Отменяю сделку...');
+                }
+            });
+        }
+        
+        function viewDealDetails(dealId) {
             const deal = currentDeals.find(d => d.id === dealId);
             if (deal) {
                 const statusText = {
-                    'pending': 'Ожидает подтверждения продавца',
-                    'active': 'В процессе выполнения',
-                    'completed': 'Завершена',
-                    'cancelled': 'Отменена'
+                    'pending': '⏳ Ожидает подтверждения продавца',
+                    'active': '🔄 В процессе выполнения',
+                    'completed': '✅ Завершена',
+                    'cancelled': '❌ Отменена'
                 }[deal.status];
                 
-                tg.showPopup({
-                    title: '📋 Детали сделки',
-                    message: `Товар: ${deal.product_name}\nТип: ${deal.product_type}\nЦена: ${deal.price} ₽\nПродавец: @${deal.seller_username}\nСтатус: ${statusText}\nСоздана: ${new Date(deal.created_at).toLocaleString()}`,
-                    buttons: [{type: 'ok'}]
-                });
+                const modalContent = document.getElementById('dealModalContent');
+                const modalActions = document.getElementById('dealModalActions');
+                
+                modalContent.innerHTML = `
+                    <p><strong>📦 Товар:</strong> ${deal.product_name}</p>
+                    <p><strong>📂 Тип:</strong> ${deal.product_type}</p>
+                    <p><strong>💰 Цена:</strong> ${deal.price} ₽</p>
+                    <p><strong>👤 ${deal.role === 'buyer' ? 'Продавец' : 'Покупатель'}:</strong> @${deal.other_username}</p>
+                    <p><strong>📊 Статус:</strong> ${statusText}</p>
+                    <p><strong>🕐 Создана:</strong> ${new Date(deal.created_at).toLocaleString()}</p>
+                    ${deal.description ? `<p><strong>📝 Описание:</strong> ${deal.description}</p>` : ''}
+                `;
+                
+                modalActions.innerHTML = '';
+                if (deal.status === 'active' && deal.role === 'buyer') {
+                    modalActions.innerHTML = `<button class="btn" onclick="confirmDealCompletion(${deal.id}); closeModals();">✅ Подтвердить получение</button>`;
+                }
+                if (deal.status === 'active' && deal.role === 'seller') {
+                    modalActions.innerHTML = `<button class="btn btn-danger" onclick="cancelDeal(${deal.id}); closeModals();">❌ Отменить сделку</button>`;
+                }
+                if (deal.status === 'pending' && deal.role === 'seller') {
+                    modalActions.innerHTML = `<button class="btn" onclick="acceptDeal(${deal.id}); closeModals();">✅ Принять сделку</button>
+                                              <button class="btn btn-danger" onclick="cancelDeal(${deal.id}); closeModals();">❌ Отклонить</button>`;
+                }
+                
+                openModal('dealModal');
             }
         }
         
-        function deposit() {
+        function deposit(method) {
             const amount = parseFloat(document.getElementById('depositAmount').value);
             
             if (!amount || amount < 100) {
@@ -665,11 +869,17 @@
                 return;
             }
             
-            tg.sendData(JSON.stringify({
-                action: 'deposit_crypto',
-                amount: amount,
-                user_id: userData.id
-            }));
+            if (method === 'crypto') {
+                tg.sendData(JSON.stringify({
+                    action: 'deposit_crypto',
+                    amount: amount
+                }));
+            } else if (method === 'stars') {
+                tg.sendData(JSON.stringify({
+                    action: 'deposit_stars',
+                    amount: amount
+                }));
+            }
             
             closeModals();
             showToast('💳 Счет создан! Оплатите в течение 30 минут');
@@ -712,13 +922,11 @@
                         action: 'withdraw',
                         amount: amount,
                         method: method,
-                        address: address,
-                        user_id: userData.id,
-                        username: userData.username
+                        address: address
                     }));
                     
                     closeModals();
-                    showToast('✅ Заявка на вывод отправлена! Ожидайте обработки');
+                    showToast('✅ Заявка на вывод отправлена!');
                     
                     document.getElementById('withdrawAmount').value = '';
                     document.getElementById('withdrawAddress').value = '';
@@ -726,16 +934,105 @@
             });
         }
         
+        function submitReview() {
+            const username = document.getElementById('reviewUsername').value.trim();
+            const text = document.getElementById('reviewText').value.trim();
+            
+            if (!username) {
+                showToast('Введите username пользователя!', true);
+                return;
+            }
+            
+            if (selectedRating === 0) {
+                showToast('Выберите оценку!', true);
+                return;
+            }
+            
+            if (!text) {
+                showToast('Введите текст отзыва!', true);
+                return;
+            }
+            
+            tg.sendData(JSON.stringify({
+                action: 'submit_review',
+                to_user: username,
+                rating: selectedRating,
+                text: text
+            }));
+            
+            showToast('⏳ Отправляю отзыв...');
+            
+            document.getElementById('reviewUsername').value = '';
+            document.getElementById('reviewText').value = '';
+            selectedRating = 0;
+            document.querySelectorAll('#ratingStars .star').forEach(star => {
+                star.textContent = '☆';
+                star.classList.remove('active');
+            });
+        }
+        
+        function loadMarketProducts() {
+            const products = JSON.parse(localStorage.getItem('funpay_market_products') || '[]');
+            currentMarketProducts = products;
+            filterMarketProducts('all');
+        }
+        
+        function filterMarketProducts(category) {
+            let filtered = currentMarketProducts;
+            if (category !== 'all') {
+                filtered = currentMarketProducts.filter(p => p.type === category);
+            }
+            
+            if (filtered.length === 0) {
+                document.getElementById('marketProducts').innerHTML = '<div class="card">📭 Товаров не найдено</div>';
+                return;
+            }
+            
+            let html = '';
+            filtered.forEach(product => {
+                html += `
+                    <div class="card">
+                        <h3>${product.name}</h3>
+                        <p style="color: var(--text-secondary); margin-top: 5px;">${product.description || 'Нет описания'}</p>
+                        <div style="margin-top: 10px;">
+                            <span class="badge badge-success">💰 ${product.price} ₽</span>
+                            <span class="badge badge-warning">👤 @${product.seller}</span>
+                        </div>
+                        <button class="btn" onclick="buyFromMarket('${product.id}')">🛒 Купить</button>
+                    </div>
+                `;
+            });
+            document.getElementById('marketProducts').innerHTML = html;
+        }
+        
+        function buyFromMarket(productId) {
+            const product = currentMarketProducts.find(p => p.id === productId);
+            if (product) {
+                document.getElementById('sellerUsername').value = product.seller;
+                document.getElementById('productType').value = product.type;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('dealPrice').value = product.price;
+                document.querySelector('[data-tab="deals"]').click();
+                openModal('newDealModal');
+            }
+        }
+        
         function loadStats() {
             const allUsers = JSON.parse(localStorage.getItem('funpay_all_users') || '[]');
             const allDeals = JSON.parse(localStorage.getItem('funpay_all_deals') || '[]');
+            const totalVolume = allDeals.reduce((sum, d) => sum + (d.status === 'completed' ? d.price : 0), 0);
             
             document.getElementById('statsUsers').innerText = allUsers.length || '1';
             document.getElementById('statsDeals').innerText = allDeals.length || '0';
+            document.getElementById('statsVolume').innerText = totalVolume.toLocaleString();
         }
         
-        window.viewDeal = viewDeal;
-        window.completeDeal = completeDeal;
+        window.viewDealDetails = viewDealDetails;
+        window.acceptDeal = acceptDeal;
+        window.confirmDealCompletion = confirmDealCompletion;
+        window.cancelDeal = cancelDeal;
+        window.buyFromMarket = buyFromMarket;
         
         tg.onEvent('viewportChanged', () => {
             tg.expand();
